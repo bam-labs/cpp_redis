@@ -2366,6 +2366,23 @@ namespace cpp_redis {
 	}
 
 	client &
+	client::xadd(const std::string &key, const std::string &id,
+	             const std::multimap<std::string, std::string> &field_members, int max_len, const reply_callback_t &reply_callback) {
+		std::vector<std::string> cmd = {"XADD", key, "MAXLEN", "~", std::to_string(max_len), id};
+
+/**
+ * score members
+ */
+		for (auto &sm : field_members) {
+			cmd.push_back(sm.first);
+			cmd.push_back(sm.second);
+		}
+
+		send(cmd, reply_callback);
+		return *this;
+	}
+
+	client &
 	client::xclaim(const std::string &stream, const std::string &group, const std::string &consumer, int min_idle_time,
 	               const std::vector<std::string> &message_ids, const xclaim_options_t &options, const reply_callback_t &reply_callback) {
 		std::vector<std::string> cmd = {"XCLAIM", stream, group, consumer, std::to_string(min_idle_time)};
@@ -4480,6 +4497,14 @@ namespace cpp_redis {
 	             const std::multimap<std::string, std::string> &field_members) {
 		return exec_cmd([=](const reply_callback_t &cb) -> client & {
 				return xadd(key, id, field_members, cb);
+		});
+	}
+
+	std::future<reply>
+	client::xadd(const std::string &key, const std::string &id,
+	             const std::multimap<std::string, std::string> &field_members, int max_len) {
+		return exec_cmd([=](const reply_callback_t &cb) -> client & {
+				return xadd(key, id, field_members, max_len, cb);
 		});
 	}
 
