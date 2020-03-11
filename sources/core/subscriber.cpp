@@ -497,11 +497,6 @@ subscriber::reconnect() {
     return;
   }
 
-  //! notify end
-  if (m_connect_callback) {
-    m_connect_callback(m_redis_server, m_redis_port, connect_state::ok);
-  }
-
   __CPP_REDIS_LOG(info, "client reconnected ok");
 
   re_auth();
